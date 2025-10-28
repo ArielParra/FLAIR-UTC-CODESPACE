@@ -17,5 +17,5 @@
     }
   },
 
-  "postStartCommand": "xpra start --bind-tcp=0.0.0.0:10000 --html=on --start=gnome-terminal --no-daemon"
+  "postStartCommand": "xpra start :100 --bind-ws=0.0.0.0:10000 --html=on --start=gnome-terminal"
 }

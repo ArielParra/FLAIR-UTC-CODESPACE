@@ -1,24 +1,24 @@
 # ============================================
 # FLAIR Build Environment
-# Ubuntu 20.04 + Flair Toolchains + GUI dependencies
+# Ubuntu 22.04 + Flair Toolchains + GUI dependencies
 # ============================================
 
-FROM ubuntu:20.04
+FROM ubuntu:22.04
 
 # Prevent interactive prompts during build
 ENV DEBIAN_FRONTEND=noninteractive
 ENV FLAIR_ROOT=/root/flair
 
 # --- Step 1: System dependencies ---
-# Install all required packages, including gnome-terminal and locales
+# Install all required packages for 22.04
 RUN apt-get update && apt-get install -y \
-    build-essential make cmake git wget file expect python3 python3-pip bash \
+    build-essential make cmake git wget file expect python3 python3-pip python-is-python3 bash \
     libgl1-mesa-dev mesa-utils sudo \
     gnome-terminal locales \
     # GUI + FlairGCS dependencies
     libx11-6 libxext6 libxrender1 libxrandr2 libxi6 libxtst6 libxfixes3 \
-    libgtk-3-0 libglib2.0-0 libicu-dev libicu66 dbus-x11 xpra \
-    && ln -s /usr/bin/python3 /usr/bin/python \
+    libgtk-3-0 libglib2.0-0 libicu-dev libicu70 \
+    dbus-x11 xpra \
     && rm -rf /var/lib/apt/lists/*
 
 # --- Step 2: Configure Locale ---
