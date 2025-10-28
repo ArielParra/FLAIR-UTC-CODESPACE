@@ -3,6 +3,19 @@
   "build": {
     "dockerfile": "Dockerfile"
   },
-  "remoteUser": "vscode",
-  "postCreateCommand": "bash $FLAIR_ROOT/flair-src/scripts/flair_compile_all.sh"
+  "remoteUser": "root",
+
+  "privileged": true,
+
+  // port for the XPRA web client
+  "forwardPorts": [10000],
+
+  "portsAttributes": {
+    "10000": {
+      "label": "Flair GUI (XPRA)",
+      "onAutoForward": "openBrowser"
+    }
+  },
+
+  "postStartCommand": "xpra start --bind-tcp=0.0.0.0:10000 --html=on --start=gnome-terminal --no-daemon"
 }

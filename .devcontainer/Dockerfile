@@ -17,7 +17,7 @@ RUN apt-get update && apt-get install -y \
     gnome-terminal locales \
     # GUI + FlairGCS dependencies
     libx11-6 libxext6 libxrender1 libxrandr2 libxi6 libxtst6 libxfixes3 \
-    libgtk-3-0 libglib2.0-0 libicu-dev libicu66 dbus-x11 \
+    libgtk-3-0 libglib2.0-0 libicu-dev libicu66 dbus-x11 xpra \
     && ln -s /usr/bin/python3 /usr/bin/python \
     && rm -rf /var/lib/apt/lists/*
 
@@ -28,16 +28,6 @@ RUN sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen && \
 ENV LANG=en_US.UTF-8
 ENV LANGUAGE=en_US:en
 ENV LC_ALL=en_US.UTF-8    
-
-# --- Step 3: Add user vscode (Codespaces default) ---
-ARG USERNAME=vscode
-ARG USER_UID=1000
-ARG USER_GID=$USER_UID
-RUN groupadd --gid $USER_GID $USERNAME \
-    && useradd -s /bin/bash --uid $USER_UID --gid $USER_GID -m $USERNAME \
-    && echo "$USERNAME ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
-USER $USERNAME
-WORKDIR /workspace
 
 # --- Step 3: Configure Flair environment ---
 # Add FLAIR_ROOT and other variables to .bashrc
