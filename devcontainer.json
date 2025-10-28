@@ -1,0 +1,8 @@
+{
+  "name": "Flair Codespace",
+  "build": {
+    "dockerfile": "Dockerfile"
+  },
+  "remoteUser": "vscode",
+  "postCreateCommand": "bash $FLAIR_ROOT/flair-src/scripts/flair_compile_all.sh"
+}
