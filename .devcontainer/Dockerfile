@@ -91,18 +91,20 @@ RUN ln -sf /usr/lib/x86_64-linux-gnu/libicui18n.so.70 /usr/lib/x86_64-linux-gnu/
 
 # --- Step 9: Build Flair automatically (non-interactive) ---
 # Use `expect` to answer prompts in flair_compile_all.sh
-RUN expect -c '
+# --- Step 9: Automatically compile Flair (non-interactive) ---
+RUN bash -c 'expect <<EOF
     set timeout -1
     spawn bash -c "source /opt/robomap3/2.1.3/armv7a-neon/environment-setup-armv7a-neon-poky-linux-gnueabi && \
-                   export FLAIR_ROOT=/root/flair && \
-                   export OECORE_CMAKE_TOOLCHAINS=\"core2-64 armv7a-neon armv5te\" && \
-                   bash /root/flair/flair-src/scripts/flair_compile_all.sh"
+                export FLAIR_ROOT=/root/flair && \
+                export OECORE_CMAKE_TOOLCHAINS=\"core2-64 armv7a-neon armv5te\" && \
+                bash /root/flair/flair-src/scripts/flair_compile_all.sh"
     expect {
-        -re "Compile all from scratch.*" { send "Y\r"; exp_continue }
-        -re "Compile Flair libs documentation.*" { send "Y\r"; exp_continue }
+        -re {Compile all from scratch.*} { send \"Y\r\"; exp_continue }
+        -re {Compile Flair libs documentation.*} { send \"Y\r\"; exp_continue }
         eof
     }
-'
+    EOF'
+
 
 # --- Default command ---
 CMD ["/bin/bash"]
