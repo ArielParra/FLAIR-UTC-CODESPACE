@@ -89,8 +89,16 @@ RUN ARCHS="core2-64 armv7a-neon armv5te" && \
 RUN ln -sf /usr/lib/x86_64-linux-gnu/libicui18n.so.70 /usr/lib/x86_64-linux-gnu/libicui18n.so.67
 
 # --- Step 9: Build Flair automatically (non-interactive) ---
-# Use `expect` to answer prompts in flair_compile_all.sh
-RUN bash -c 'expect -c "set timeout -1; spawn bash -c '\''source /opt/robomap3/2.1.3/armv7a-neon/environment-setup-armv7a-neon-poky-linux-gnueabi && export FLAIR_ROOT=/root/flair && export OECORE_CMAKE_TOOLCHAINS=\"core2-64 armv7a-neon armv5te\" && bash /root/flair/flair-src/scripts/flair_compile_all.sh'\''; expect -re \"Compile all from scratch.*\" { send \"Y\r\"; exp_continue }; expect -re \"Compile Flair libs documentation.*\" { send \"Y\r\"; exp_continue }; expect eof"'
+ENV FLAIR_ROOT=/root/flair
+ENV OECORE_CMAKE_TOOLCHAINS="core2-64 armv7a-neon armv5te"
+ENV OECORE_CORE2_64_NATIVE_SYSROOT=/opt/toolchains/core2-64
+ENV OECORE_ARMV7A_NEON_NATIVE_SYSROOT=/opt/toolchains/armv7a-neon
+ENV OECORE_ARMV5TE_NATIVE_SYSROOT=/opt/toolchains/armv5te
+ENV OECORE_CORE2_64_TOOLCHAIN=/opt/toolchains/core2-64.cmake
+ENV OECORE_ARMV7A_NEON_TOOLCHAIN=/opt/toolchains/armv7a-neon.cmake
+ENV OECORE_ARMV5TE_TOOLCHAIN=/opt/toolchains/armv5te.cmake
+RUN mkdir -p $FLAIR_ROOT/flair-build
+RUN yes Y | bash $FLAIR_ROOT/flair-src/scripts/flair_compile_all.sh
 
 # --- Default command ---
 CMD ["/bin/bash"]
