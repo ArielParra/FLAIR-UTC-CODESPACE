@@ -71,18 +71,16 @@ RUN cd /tmp && \
 
 # --- Step 7: Fix toolchain make path ---
 # Some SDKs lack make inside their sysroots — link system make
-RUN bash -c '\
-    for arch in core2-64 armv7a-neon armv5te; do
-        SYSROOT_DIR=$(echo /opt/robomap3/2.1.3/$arch/sysroots/*/usr/bin)
-        if [ -d "$SYSROOT_DIR" ]; then
-            ln -sf /usr/bin/make "$SYSROOT_DIR/make"
-            echo "Linked /usr/bin/make → $SYSROOT_DIR/make"
-        else
-            echo "⚠️ No matching sysroot usr/bin found for $arch"
-        fi
-    done'
-
-
+RUN ARCHS="core2-64 armv7a-neon armv5te"
+    for arch in $ARCHS; do \
+        SYSROOT_DIR=$(echo /opt/robomap3/2.1.3/$arch/sysroots/*/usr/bin) \
+        if [ -d "$SYSROOT_DIR" ]; then \
+            ln -sf /usr/bin/make "$SYSROOT_DIR/make" \
+            echo "Linked /usr/bin/make → $SYSROOT_DIR/make" \
+        else \
+            echo "⚠️ No matching sysroot usr/bin found for $arch"\
+        fi \
+    done
 
 # --- Step 8: Workaround for FlairGCS expecting incorrect ICU version name ---
 # FlairGCS tries to dynamically load "icui18n" or an unexpected ICU version
