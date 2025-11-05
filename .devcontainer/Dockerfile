@@ -91,9 +91,9 @@ RUN ln -sf /usr/lib/x86_64-linux-gnu/libicui18n.so.70 /usr/lib/x86_64-linux-gnu/
 # --- Step 9: Build Flair automatically (non-interactive) ---
 ENV FLAIR_ROOT=/root/flair
 ENV OECORE_CMAKE_TOOLCHAINS="core2-64 armv7a-neon armv5te"
-ENV OECORE_CORE2_64_NATIVE_SYSROOT=/opt/toolchains/core2-64
-ENV OECORE_ARMV7A_NEON_NATIVE_SYSROOT=/opt/toolchains/armv7a-neon
-ENV OECORE_ARMV5TE_NATIVE_SYSROOT=/opt/toolchains/armv5te
+ENV OECORE_CORE2_64_NATIVE_SYSROOT=/opt/robomap3/2.1.3/core2-64/sysroots/core2-64-poky-linux
+ENV OECORE_ARMV7A_NEON_NATIVE_SYSROOT=/opt/robomap3/2.1.3/armv7a-neon/sysroots/armv7a-neon-poky-linux-gnueabi
+ENV OECORE_ARMV5TE_NATIVE_SYSROOT=/opt/robomap3/2.1.3/armv5te/sysroots/armv5te-poky-linux
 ENV OECORE_CORE2_64_TOOLCHAIN=/opt/toolchains/core2-64.cmake
 ENV OECORE_ARMV7A_NEON_TOOLCHAIN=/opt/toolchains/armv7a-neon.cmake
 ENV OECORE_ARMV5TE_TOOLCHAIN=/opt/toolchains/armv5te.cmake
