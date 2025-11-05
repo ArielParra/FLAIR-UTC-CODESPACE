@@ -72,15 +72,16 @@ RUN cd /tmp && \
 # --- Step 7: Fix toolchain make path ---
 # Some SDKs lack make inside their sysroots — link system make
 RUN bash -c '\
-  for arch in armv7a-neon armv5te; do \
-      TARGET_DIR=$(find /opt/robomap3/2.1.3/${arch}/sysroots -type d -path "*/usr/bin" | grep -E "poky-linux-gnueabi"); \
-      if [ -n "$TARGET_DIR" ]; then \
-          ln -sf /usr/bin/make "${TARGET_DIR}/make"; \
-          echo "Linked /usr/bin/make → ${TARGET_DIR}/make"; \
-      else \
-          echo "⚠️  No matching sysroot usr/bin found for $arch"; \
-      fi; \
-  done'
+    for arch in core2-64 armv7a-neon armv5te; do
+        SYSROOT_DIR=$(echo /opt/robomap3/2.1.3/$arch/sysroots/*/usr/bin)
+        if [ -d "$SYSROOT_DIR" ]; then
+            ln -sf /usr/bin/make "$SYSROOT_DIR/make"
+            echo "Linked /usr/bin/make → $SYSROOT_DIR/make"
+        else
+            echo "⚠️ No matching sysroot usr/bin found for $arch"
+        fi
+    done'
+
 
 
 # --- Step 8: Workaround for FlairGCS expecting incorrect ICU version name ---
@@ -91,7 +92,7 @@ RUN ln -sf /usr/lib/x86_64-linux-gnu/libicui18n.so.70 /usr/lib/x86_64-linux-gnu/
 
 # --- Step 9: Build Flair automatically (non-interactive) ---
 # Use `expect` to answer prompts in flair_compile_all.sh
-RUN expect -c "set timeout -1; spawn bash -c \"source /opt/robomap3/2.1.3/armv7a-neon/environment-setup-armv7a-neon-poky-linux-gnueabi && export FLAIR_ROOT=/root/flair && ./flair_compile_all.sh\"; expect eof"
+bash -c 'expect -c "set timeout -1; spawn bash -c '\''source /opt/robomap3/2.1.3/armv7a-neon/environment-setup-armv7a-neon-poky-linux-gnueabi && export FLAIR_ROOT=/root/flair && export OECORE_CMAKE_TOOLCHAINS=\"core2-64 armv7a-neon armv5te\" && bash /root/flair/flair-src/scripts/flair_compile_all.sh'\''; expect -re \"Compile all from scratch.*\" { send \"Y\r\"; exp_continue }; expect -re \"Compile Flair libs documentation.*\" { send \"Y\r\"; exp_continue }; expect eof"'
 
 # --- Default command ---
 CMD ["/bin/bash"]
