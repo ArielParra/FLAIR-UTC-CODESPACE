@@ -13,7 +13,7 @@ ENV FLAIR_ROOT=/root/flair
 # Install all required packages for 22.04
 RUN apt-get update && apt-get install -y \
     build-essential make cmake git wget file expect python3 python3-pip python-is-python3 bash \
-    libgl1-mesa-dev mesa-utils sudo \
+    libgl1-mesa-dev mesa-utils sudo qemu doxygen\
     gnome-terminal locales \
     # GUI + FlairGCS dependencies
     libx11-6 libxext6 libxrender1 libxrandr2 libxi6 libxtst6 libxfixes3 \
@@ -34,7 +34,7 @@ ENV LC_ALL=en_US.UTF-8
 RUN echo '# Flair Environment Configuration' >> /root/.bashrc && \
     echo 'export FLAIR_ROOT=/root/flair' >> /root/.bashrc && \
     echo 'export PATH="$PATH:$FLAIR_ROOT/flair-src/bin"' >> /root/.bashrc && \
-    echo 'source $FLAIR_ROOT/flair-src/scripts/flair_completion.sh || true' >> /root/.bashrc
+    echo 'source $FLAIR_ROOT/flair-src/scripts/flair_completion.sh ' >> /root/.bashrc
 
 # --- Step 4: Set real-time priority limits ---
 RUN echo 'root soft rtprio 99' >> /etc/security/limits.conf && \
@@ -48,7 +48,7 @@ RUN mkdir -p ${FLAIR_ROOT} && cd ${FLAIR_ROOT} && \
 # --- Step 6: Install Flair toolchains ---
 # Download and install the necessary toolchains for cross-compilation
 RUN cd /tmp && \
-    TOOLCHAINS="x86_64-meta-toolchain-flair-x86_64 x86_64-meta-toolchain-flair-armv7a-neon" && \
+    TOOLCHAINS="x86_64-meta-toolchain-flair-x86_64 x86_64-meta-toolchain-flair-armv7a-neon x86_64-meta-toolchain-flair-armv5e" && \
     for toolchain in $TOOLCHAINS; do \
         echo "[+] Installing $toolchain..."; \
         wget --no-check-certificate "https://devel.hds.utc.fr/flair/old/toolchain/${toolchain}.sh"; \
@@ -58,7 +58,6 @@ RUN cd /tmp && \
             spawn ./${toolchain}.sh; \
             expect \"Enter target directory for SDK*\"; send \"\r\"; \
             expect \"Proceed\"; send \"Y\r\"; \
-            expect \"license\"; send \"yes\r\"; \
             expect eof; \
         "; \
         rm -f "${toolchain}.sh"; \
@@ -66,9 +65,9 @@ RUN cd /tmp && \
 
 # --- Step 7: Fix toolchain make path ---
 # Some SDKs lack /usr/bin/make inside their sysroots — link system make
-RUN ln -sf /usr/bin/make /opt/robomap3/2.1.3/core2-64/sysroots/core2-64-poky-linux/usr/bin/make || true && \
-    ln -sf /usr/bin/make /opt/robomap3/2.1.3/armv7a-neon/sysroots/core2-64-poky-linux/usr/bin/make || true && \
-    ln -sf /usr/bin/make /opt/robomap3/2.1.3/armv5te/sysroots/core2-64-poky-linux/usr/bin/make || true
+RUN ln -sf /usr/bin/make /opt/robomap3/2.1.3/core2-64/sysroots/core2-64-poky-linux/usr/bin/make  && \
+    ln -sf /usr/bin/make /opt/robomap3/2.1.3/armv7a-neon/sysroots/core2-64-poky-linux/usr/bin/make  && \
+    ln -sf /usr/bin/make /opt/robomap3/2.1.3/armv5te/sysroots/core2-64-poky-linux/usr/bin/make
 
 # --- Step 8: Workaround for FlairGCS expecting incorrect ICU version name ---
 # FlairGCS tries to dynamically load "icui18n" or an unexpected ICU version
