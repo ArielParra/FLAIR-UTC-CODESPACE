@@ -63,12 +63,12 @@ RUN cd /tmp && \
         rm -f "${toolchain}.sh"; \
     done
 
-# --- Step 7: Fix toolchain make path ---
-# Some SDKs lack /usr/bin/make inside their sysroots — link system make
-RUN ln -sf /usr/bin/make /opt/robomap3/2.1.3/core2-64/sysroots/core2-64-poky-linux/usr/bin/make  && \
-    ln -sf /usr/bin/make /opt/robomap3/2.1.3/armv7a-neon/sysroots/core2-64-poky-linux/usr/bin/make  && \
-    ln -sf /usr/bin/make /opt/robomap3/2.1.3/armv5te/sysroots/core2-64-poky-linux/usr/bin/make
-
+# Some SDKs lack make inside their sysroots — link system make
+RUN for arch in core2-64 armv7a-neon armv5te; do \
+      TARGET_DIR="/opt/robomap3/2.1.3/${arch}/sysroots/core2-64-poky-linux/usr/bin"; \
+      mkdir -p "${TARGET_DIR}"; \
+      ln -sf /usr/bin/make "${TARGET_DIR}/make"; \
+    done
 # --- Step 8: Workaround for FlairGCS expecting incorrect ICU version name ---
 # FlairGCS tries to dynamically load "icui18n" or an unexpected ICU version
 # This symlink makes libicui18n.so.70 available under the name libicui18n.so.67
