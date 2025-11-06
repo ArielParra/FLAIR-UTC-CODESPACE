@@ -85,14 +85,7 @@ RUN ARCHS="core2-64 armv7a-neon armv5te" && \
         fi; \
     done
 
-# --- Step 8: Workaround for FlairGCS ICU version ---
-RUN ln -sf /usr/lib/x86_64-linux-gnu/libicui18n.so.72 /usr/lib/x86_64-linux-gnu/libicui18n.so.67
-
-# --- Step 9: Add Global CMake Config Script ---
-COPY configure-flair-cmake.sh /usr/local/bin/configure-flair-cmake.sh
-RUN chmod +x /usr/local/bin/configure-flair-cmake.sh
-
-# --- Step 10: Configure .bashrc ---
+# --- Step 8: Configure .bashrc ---
 RUN echo '# Flair Environment Configuration' >> /root/.bashrc && \
     echo 'export PATH="$PATH:$FLAIR_ROOT/flair-src/bin:$FLAIR_ROOT/flair-src/scripts"' >> /root/.bashrc && \
     # fix an error with arm crosscompilation 
@@ -101,8 +94,19 @@ RUN echo '# Flair Environment Configuration' >> /root/.bashrc && \
     echo 'export QT_X11_NO_MITSHM=1' >> /root/.bashrc && \
     echo 'source $FLAIR_ROOT/flair-src/scripts/flair_completion.sh' >> /root/.bashrc
 
-# --- Step 11: Add Alejandro's Template ---
-RUN git clone https://github.com/ateveraz/customCtrl.git /root/customCtrl
+# --- Step 9: Workaround for FlairGCS ICU version ---
+RUN ln -sf /usr/lib/x86_64-linux-gnu/libicui18n.so.72 /usr/lib/x86_64-linux-gnu/libicui18n.so.67
+
+# --- Step 10: Add Alejandro's Template without push notifications ---
+RUN git clone https://github.com/ateveraz/customCtrl.git /root/customCtrl && \
+    cd /root/customCtrl && \
+    git remote remove origin
+
+# --- Step 11: Add Global CMake Config Script ---
+COPY configure-flair-cmake.sh /usr/local/bin/configure-flair-cmake.sh
+RUN chmod +x /usr/local/bin/configure-flair-cmake.sh && \
+    cd /root/customCtrl && \
+    /usr/local/bin/configure-flair-cmake.sh
 
 # --- Step 12: Compile all Flair non-interactively ---
 COPY flair_compile_all_non_interactive.sh /usr/local/bin/
