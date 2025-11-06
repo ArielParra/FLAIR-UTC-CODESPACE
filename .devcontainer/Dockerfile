@@ -16,8 +16,8 @@ RUN apt-get update && apt-get install -y \
     python-is-python3 git build-essential cmake file \
     mesa-utils libgl1-mesa-dev \
     # not stated in the wiki but needed to compile & run flair
-    make wget expect python3 python3-pip bash sudo qemu doxygen \
-    gnome-terminal locales \
+    make wget python3 python3-pip bash sudo qemu-user doxygen \
+    gnome-terminal locales expect\
     # GUI dependencies
     libx11-6 libxext6 libxrender1 libxrandr2 libxi6 libxtst6 libxfixes3 \
     libgtk-3-0 libglib2.0-0 \
@@ -40,32 +40,29 @@ RUN mkdir -p ${FLAIR_ROOT} && \
 
 # --- Step 6: Install Flair toolchains (Parallel) ---
 RUN cd /tmp && \
-    TOOLCHAINS="x86_64-meta-toolchain-flair-x86_64 x86_64-meta-toolchain-flair-armv7a-neon x86_64-meta-toolchain-flair-armv5e" && \
-    \
-    # --- Parallel Download ---
-    echo "Downloading all toolchains in parallel..." && \
-    for toolchain in $TOOLCHAINS; do \
-        wget --no-check-certificate "https://devel.hds.utc.fr/flair/old/toolchain/${toolchain}.sh" & \
-    done && \
-    # Wait for all background downloads to finish
-    wait && \   
-    echo "All downloads complete." && \
-    \
-    # --- Parallel Install ---
-    echo "Installing all toolchains in parallel..." && \
+    TOOLCHAINS="x86_64-meta-toolchain-flair-x86_64 \
+                x86_64-meta-toolchain-flair-armv7a-neon \
+                x86_64-meta-toolchain-flair-armv5e" && \
+    echo "[*] Starting parallel toolchain installs..." && \
     for toolchain in $TOOLCHAINS; do \
         ( \
-            echo "[+] Installing $toolchain..."; \
-            chmod +x "${toolchain}.sh"; \
-            echo -e "\nY" | ./${toolchain}.sh > /dev/null; \
-            rm -f "${toolchain}.sh"; \
-            echo "[+] Finished $toolchain." \
+            echo "[+] Downloading and installing $toolchain..."; \
+            wget -q --no-check-certificate "https://devel.hds.utc.fr/flair/old/toolchain/${toolchain}.sh" -O "${toolchain}.sh" && \
+            chmod +x "${toolchain}.sh" && \
+            expect -c " \
+                set timeout -1; \
+                spawn ./${toolchain}.sh; \
+                expect \"Enter target directory for SDK*\"; send \"\r\"; \
+                expect \"Proceed\"; send \"Y\r\"; \
+                expect eof; \
+            " && \
+            rm -f "${toolchain}.sh" && \
+            echo \"Finished installing $toolchain\" \
         ) & \
     done && \
-    # Wait for all background installs to finish
-    wait && \
-    echo "All toolchains installed."
-# --- Step 7: Fix toolchain make path ---
+    wait && echo "All toolchains installed in parallel successfully."
+
+    # --- Step 7: Fix toolchain make path ---
 RUN ARCHS="core2-64 armv7a-neon armv5te" && \
     for arch in $ARCHS; do \
         SYSROOT_DIR=$(echo /opt/robomap3/2.1.3/$arch/sysroots/*poky-linux*/usr/bin) && \

@@ -14,9 +14,9 @@
   },
 
   "postCreateCommand": "bash -c 'source ~/.bashrc && configure-flair-cmake'",
-
   "postStartCommand": "xpra start --bind-tcp=0.0.0.0:10000 --html=on --start=gnome-terminal",
-
+  
+  "workspaceFolder": "/root/",
   "customizations": {
     "vscode": {
       "settings": {
