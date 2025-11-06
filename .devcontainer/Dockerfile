@@ -34,7 +34,9 @@ RUN echo 'root soft rtprio 99' >> /etc/security/limits.conf && \
 
 # --- Step 5: Clone Flair source---
 RUN mkdir -p ${FLAIR_ROOT} && \
-    git -c http.sslVerify=false clone https://gitlab.utc.fr/uav-hds/flair/flair-src.git ${FLAIR_ROOT}/flair-src
+    git -c http.sslVerify=false clone https://gitlab.utc.fr/uav-hds/flair/flair-src.git ${FLAIR_ROOT}/flair-src && \
+    cd ${FLAIR_ROOT}/flair-src && \
+    git remote remove origin
 
     # --- Step 5.1: Patch Gui_impl.cpp to limit FPS ---
 RUN sed -i \
