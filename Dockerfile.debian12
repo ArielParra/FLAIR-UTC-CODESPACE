@@ -1,7 +1,7 @@
-# =====================================================================================
+# ============================================
 # FLAIR Build Environment
-# Debian 12 (Bookworm) Slim + Flair Toolchains + GUI dependencies + HDS students hacks
-# =====================================================================================
+# Debian 12 (Bookworm) Slim + Flair Toolchains + GUI dependencies
+# ============================================
 
 FROM debian:bookworm-slim
 
@@ -87,10 +87,6 @@ RUN ARCHS="core2-64 armv7a-neon armv5te" && \
 # This symlink makes libicui18n.so.72 available under the name libicui18n.so.67
 # to satisfy that runtime expectation and prevent "Cannot load library icui18n" errors
 RUN ln -sf /usr/lib/x86_64-linux-gnu/libicui18n.so.72 /usr/lib/x86_64-linux-gnu/libicui18n.so.67
-
-
-## --- Step 9: Add Alejandro's Template/Boilerplate/Skeleton for a Flair Project ---
-RUN git clone https://github.com/ateveraz/customCtrl.git /root/customCtrl
 
 # --- Default command ---
 CMD ["/bin/bash"]

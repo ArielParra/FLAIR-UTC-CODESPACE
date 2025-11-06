@@ -4,7 +4,6 @@
     "dockerfile": "Dockerfile"
   },
   "remoteUser": "root",
-
   "privileged": true,
 
   // port for the XPRA web client
@@ -12,10 +11,19 @@
 
   "portsAttributes": {
     "10000": {
-      "label": "Flair GUI (XPRA)",
+      "label": "Gnome Terminal (XPRA)",
       "onAutoForward": "openBrowser"
     }
   },
 
-  "postStartCommand": "xpra start :100 --bind-ws=0.0.0.0:10000 --html=on --start=gnome-terminal"
+  "postStartCommand": "xpra start --bind-tcp=0.0.0.0:10000 --html=on --start=gnome-terminal",
+
+  // VS Code extensions 
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-vscode.cpptools-extension-pack"
+      ]
+    }
+  }
 }
