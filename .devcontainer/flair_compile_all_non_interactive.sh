@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -e  # exit on first error
+set -e
 
 NB_THREADS=$(nproc)
 FLAIR_BUILD_DIR="$FLAIR_ROOT/flair-build"
@@ -17,6 +17,8 @@ for arch in "${toolchains[@]}"; do
     make -j"$NB_THREADS"
     make install
 done
+
+mkdir -p "$FLAIR_ROOT/flair-install/doc"
 
 DOXYGEN=$(eval "echo \"\$OECORE_${arch^^}_NATIVE_SYSROOT\"")/usr/bin/doxygen
 if [ -x "$DOXYGEN" ]; then
