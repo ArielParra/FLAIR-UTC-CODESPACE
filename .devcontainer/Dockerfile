@@ -7,9 +7,7 @@ FROM debian:bookworm-slim
 
 ENV DEBIAN_FRONTEND=noninteractive
 ENV FLAIR_ROOT=/root/flair
-ENV LANG=en_US.UTF-8
-ENV LANGUAGE=en_US:en
-ENV LC_ALL=en_US.UTF-8
+ENV FLAIR_FPS=30
 
 # --- Step 1: System dependencies ---
 RUN apt-get update && apt-get install -y \
@@ -37,6 +35,19 @@ RUN echo 'root soft rtprio 99' >> /etc/security/limits.conf && \
 # --- Step 5: Clone Flair source---
 RUN mkdir -p ${FLAIR_ROOT} && \
     git -c http.sslVerify=false clone https://gitlab.utc.fr/uav-hds/flair/flair-src.git ${FLAIR_ROOT}/flair-src
+
+    # --- Step 5.1: Patch Gui_impl.cpp to limit FPS ---
+RUN sed -i \
+    -e '/while (device->run()) {/a \
+    const u32 frameTimeMs = 1000 / ${FLAIR_FPS}; \
+    u32 frameStartTime = device->getTimer()->getTime();' \
+    -e '/driver->endScene();/a \
+    const u32 frameRenderTime = device->getTimer()->getTime() - frameStartTime; \
+    if (frameRenderTime < frameTimeMs) { \
+        device->sleep(frameTimeMs - frameRenderTime); \
+    } \
+    frameStartTime = device->getTimer()->getTime();' \
+    $FLAIR_ROOT/flair-src/lib/FlairSimulator/src/Gui_impl.cpp
 
 # --- Step 6: Install Flair toolchains (Parallel) ---
 RUN cd /tmp && \
