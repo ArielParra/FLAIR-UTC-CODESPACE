@@ -5,10 +5,7 @@
   },
   "remoteUser": "root",
   "privileged": true,
-
-  // port for the XPRA web client
   "forwardPorts": [10000],
-
   "portsAttributes": {
     "10000": {
       "label": "Gnome Terminal (XPRA)",
@@ -16,13 +13,24 @@
     }
   },
 
+  "postCreateCommand": "bash -c 'source ~/.bashrc && configure-flair-cmake'",
+
   "postStartCommand": "xpra start --bind-tcp=0.0.0.0:10000 --html=on --start=gnome-terminal",
 
-  // VS Code extensions 
   "customizations": {
     "vscode": {
+      "settings": {
+        "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools",
+        "cmake.configureOnOpen": true,
+        "files.exclude": {
+          "**/.git": true,
+          "build": true,
+          "**/*.code-workspace": true
+        }
+      },
       "extensions": [
-        "ms-vscode.cpptools-extension-pack"
+        "ms-vscode.cpptools-extension-pack",
+        "ms-vscode.cmake-tools"
       ]
     }
   }

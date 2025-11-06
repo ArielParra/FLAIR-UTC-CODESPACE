@@ -20,8 +20,7 @@ RUN apt-get update && apt-get install -y \
     libx11-6 libxext6 libxrender1 libxrandr2 libxi6 libxtst6 libxfixes3 \
     libgtk-3-0 libglib2.0-0 \
     #FLairGCS dependencies
-    libicu-dev libicu72 \
-    dbus-x11 xpra \
+    libicu-dev libicu72 dbus-x11 \
     && rm -rf /var/lib/apt/lists/*
 
 # --- Step 2: Configure Locale ---
@@ -30,7 +29,7 @@ RUN sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen && \
     locale-gen
 ENV LANG=en_US.UTF-8
 ENV LANGUAGE=en_US:en
-ENV LC_ALL=en_US.UTF-8    
+ENV LC_ALL=en_US.UTF-8
 
 # --- Step 3: Configure Flair environment ---
 # Add FLAIR_ROOT and other variables to .bashrc

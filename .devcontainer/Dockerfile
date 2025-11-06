@@ -5,9 +5,11 @@
 
 FROM debian:bookworm-slim
 
-# Prevent interactive prompts during build
 ENV DEBIAN_FRONTEND=noninteractive
 ENV FLAIR_ROOT=/root/flair
+ENV LANG=en_US.UTF-8
+ENV LANGUAGE=en_US:en
+ENV LC_ALL=en_US.UTF-8
 
 # --- Step 1: System dependencies ---
 RUN apt-get update && apt-get install -y \
@@ -25,52 +27,45 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # --- Step 2: Configure Locale ---
-# Generate the en_US.UTF-8 locale to fix gnome-terminal errors
 RUN sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen && \
     locale-gen
-ENV LANG=en_US.UTF-8
-ENV LANGUAGE=en_US:en
-ENV LC_ALL=en_US.UTF-8    
-
-# --- Step 3: Configure Flair environment ---
-# Add FLAIR_ROOT and other variables to .bashrc
-# Added QEMU LD prefix for arm crosscompilation, added QT_X11_NO_MITSHM to fix errors specific to FLairGCS in debain 
-RUN echo '# Flair Environment Configuration' >> /root/.bashrc && \
-    echo 'export FLAIR_ROOT=/root/flair' >> /root/.bashrc && \
-    echo 'export PATH="$PATH:$FLAIR_ROOT/flair-src/bin"' >> /root/.bashrc && \
-    echo 'export QEMU_LD_PREFIX="/opt/robomap3/2.1.3/armv7a-neon/sysroots/armv7a-neon-poky-linux-gnueabi"' >> /root/.bashrc && \
-    echo 'export QT_X11_NO_MITSHM=1' >> /root/.bashrc && \
-    echo 'source $FLAIR_ROOT/flair-src/scripts/flair_completion.sh ' >> /root/.bashrc
 
 # --- Step 4: Set real-time priority limits ---
 RUN echo 'root soft rtprio 99' >> /etc/security/limits.conf && \
     echo 'root hard rtprio 99' >> /etc/security/limits.conf
 
-# --- Step 5: Clone Flair source ---
-RUN mkdir -p ${FLAIR_ROOT} && cd ${FLAIR_ROOT} && \
-    git config --global http.sslVerify false && \
-    git clone https://gitlab.utc.fr/uav-hds/flair/flair-src.git
+# --- Step 5: Clone Flair source---
+RUN mkdir -p ${FLAIR_ROOT} && \
+    git -c http.sslVerify=false clone https://gitlab.utc.fr/uav-hds/flair/flair-src.git ${FLAIR_ROOT}/flair-src
 
-# --- Step 6: Install Flair toolchains ---
-# Download and install the necessary toolchains for cross-compilation
+# --- Step 6: Install Flair toolchains (Parallel) ---
 RUN cd /tmp && \
     TOOLCHAINS="x86_64-meta-toolchain-flair-x86_64 x86_64-meta-toolchain-flair-armv7a-neon x86_64-meta-toolchain-flair-armv5e" && \
+    \
+    # --- Parallel Download ---
+    echo "Downloading all toolchains in parallel..." && \
     for toolchain in $TOOLCHAINS; do \
-        echo "[+] Installing $toolchain..."; \
-        wget --no-check-certificate "https://devel.hds.utc.fr/flair/old/toolchain/${toolchain}.sh"; \
-        chmod +x "${toolchain}.sh"; \
-        expect -c " \
-            set timeout -1; \
-            spawn ./${toolchain}.sh; \
-            expect \"Enter target directory for SDK*\"; send \"\r\"; \
-            expect \"Proceed\"; send \"Y\r\"; \
-            expect eof; \
-        "; \
-        rm -f "${toolchain}.sh"; \
-    done
-
+        wget --no-check-certificate "https://devel.hds.utc.fr/flair/old/toolchain/${toolchain}.sh" & \
+    done && \
+    # Wait for all background downloads to finish
+    wait && \   
+    echo "All downloads complete." && \
+    \
+    # --- Parallel Install ---
+    echo "Installing all toolchains in parallel..." && \
+    for toolchain in $TOOLCHAINS; do \
+        ( \
+            echo "[+] Installing $toolchain..."; \
+            chmod +x "${toolchain}.sh"; \
+            echo -e "\nY" | ./${toolchain}.sh > /dev/null; \
+            rm -f "${toolchain}.sh"; \
+            echo "[+] Finished $toolchain." \
+        ) & \
+    done && \
+    # Wait for all background installs to finish
+    wait && \
+    echo "All toolchains installed."
 # --- Step 7: Fix toolchain make path ---
-# Some SDKs lack make inside their sysroots (link system make)
 RUN ARCHS="core2-64 armv7a-neon armv5te" && \
     for arch in $ARCHS; do \
         SYSROOT_DIR=$(echo /opt/robomap3/2.1.3/$arch/sysroots/*poky-linux*/usr/bin) && \
@@ -78,19 +73,29 @@ RUN ARCHS="core2-64 armv7a-neon armv5te" && \
             ln -sf /usr/bin/make "$SYSROOT_DIR/make" && \
             echo "Linked /usr/bin/make → $SYSROOT_DIR/make"; \
         else \
-            echo "⚠️ No matching 'poky-linux' sysroot found for $arch (path: $SYSROOT_DIR)"; \
+            echo "No matching 'poky-linux' sysroot found for $arch (path: $SYSROOT_DIR)"; \
         fi; \
     done
 
-# --- Step 8: Workaround for FlairGCS expecting incorrect ICU version name ---
-# FlairGCS tries to dynamically load "icui18n" or an unexpected ICU version
-# This symlink makes libicui18n.so.72 available under the name libicui18n.so.67
-# to satisfy that runtime expectation and prevent "Cannot load library icui18n" errors
+# --- Step 8: Workaround for FlairGCS ICU version ---
 RUN ln -sf /usr/lib/x86_64-linux-gnu/libicui18n.so.72 /usr/lib/x86_64-linux-gnu/libicui18n.so.67
 
+# --- Step 9: Add Global CMake Config Script ---
+COPY configure-flair-cmake.sh /usr/local/bin/configure-flair-cmake.sh
+RUN chmod +x /usr/local/bin/configure-flair-cmake.sh
 
-## --- Step 9: Add Alejandro's Template/Boilerplate/Skeleton for a Flair Project ---
+# --- Step 10: Configure .bashrc  ---
+RUN echo '# Flair Environment Configuration' >> /root/.bashrc && \
+    echo 'export PATH="$PATH:$FLAIR_ROOT/flair-src/bin"' >> /root/.bashrc && \
+    # fix an error with arm crosscompilation 
+    echo 'export QEMU_LD_PREFIX="/opt/robomap3/2.1.3/armv7a-neon/sysroots/armv7a-neon-poky-linux-gnueabi"' >> /root/.bashrc && \
+    # QT_X11_NO_MITSHM to fix specific GUI errors in FLairGCS for debain
+    echo 'export QT_X11_NO_MITSHM=1' >> /root/.bashrc && \
+    echo 'source $FLAIR_ROOT/flair-src/scripts/flair_completion.sh ' >> /root/.bashrc
+
+# --- Step 11: Add Alejandro's Template ---
 RUN git clone https://github.com/ateveraz/customCtrl.git /root/customCtrl
+
 
 # --- Default command ---
 CMD ["/bin/bash"]
