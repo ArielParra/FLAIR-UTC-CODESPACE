@@ -38,15 +38,15 @@ RUN mkdir -p ${FLAIR_ROOT} && \
 
     # --- Step 5.1: Patch Gui_impl.cpp to limit FPS ---
 RUN sed -i \
-    -e '/while (device->run()) {/a \
-    const u32 frameTimeMs = 1000 / ${FLAIR_FPS}; \
-    u32 frameStartTime = device->getTimer()->getTime();' \
-    -e '/driver->endScene();/a \
+    -e "/while (device->run()) {/a \
+    const u32 frameTimeMs = 1000 / $FLAIR_FPS; \
+    u32 frameStartTime = device->getTimer()->getTime();" \
+    -e "/driver->endScene();/a \
     const u32 frameRenderTime = device->getTimer()->getTime() - frameStartTime; \
     if (frameRenderTime < frameTimeMs) { \
         device->sleep(frameTimeMs - frameRenderTime); \
     } \
-    frameStartTime = device->getTimer()->getTime();' \
+    frameStartTime = device->getTimer()->getTime();" \
     $FLAIR_ROOT/flair-src/lib/FlairSimulator/src/Gui_impl.cpp
 
 # --- Step 6: Install Flair toolchains (Parallel) ---
@@ -92,14 +92,14 @@ RUN ln -sf /usr/lib/x86_64-linux-gnu/libicui18n.so.72 /usr/lib/x86_64-linux-gnu/
 COPY configure-flair-cmake.sh /usr/local/bin/configure-flair-cmake.sh
 RUN chmod +x /usr/local/bin/configure-flair-cmake.sh
 
-# --- Step 10: Configure .bashrc  ---
+# --- Step 10: Configure .bashrc ---
 RUN echo '# Flair Environment Configuration' >> /root/.bashrc && \
-    echo 'export PATH="$PATH:$FLAIR_ROOT/flair-src/bin"' >> /root/.bashrc && \
+    echo 'export PATH="$PATH:$FLAIR_ROOT/flair-src/bin:$FLAIR_ROOT/flair-src/scripts"' >> /root/.bashrc && \
     # fix an error with arm crosscompilation 
     echo 'export QEMU_LD_PREFIX="/opt/robomap3/2.1.3/armv7a-neon/sysroots/armv7a-neon-poky-linux-gnueabi"' >> /root/.bashrc && \
-    # QT_X11_NO_MITSHM to fix specific GUI errors in FLairGCS for debain
+    # QT_X11_NO_MITSHM to fix specific GUI errors in FlairGCS for Debian
     echo 'export QT_X11_NO_MITSHM=1' >> /root/.bashrc && \
-    echo 'source $FLAIR_ROOT/flair-src/scripts/flair_completion.sh ' >> /root/.bashrc
+    echo 'source $FLAIR_ROOT/flair-src/scripts/flair_completion.sh' >> /root/.bashrc
 
 # --- Step 11: Add Alejandro's Template ---
 RUN git clone https://github.com/ateveraz/customCtrl.git /root/customCtrl
