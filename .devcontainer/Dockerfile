@@ -104,6 +104,10 @@ RUN echo '# Flair Environment Configuration' >> /root/.bashrc && \
 # --- Step 11: Add Alejandro's Template ---
 RUN git clone https://github.com/ateveraz/customCtrl.git /root/customCtrl
 
+# --- Step 12: Compile all Flair non-interactively ---
+COPY flair_compile_all_non_interactive.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/flair_compile_all_non_interactive.sh && \
+    /usr/local/bin/flair_compile_all_non_interactive.sh
 
 # --- Default command ---
 CMD ["/bin/bash"]
