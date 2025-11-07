@@ -7,7 +7,6 @@ FROM debian:bookworm-slim
 
 ENV DEBIAN_FRONTEND=noninteractive
 ENV FLAIR_ROOT=/root/flair
-ARG FLAIR_FPS=30
 
 # --- Step 1: System dependencies ---
 RUN apt-get update && apt-get install -y \
@@ -22,7 +21,7 @@ RUN apt-get update && apt-get install -y \
     libgtk-3-0 libglib2.0-0 \
     #FLairGCS dependencies
     libicu-dev libicu72 \
-    dbus-x11 xpra \
+    dbus-x11 \
     && rm -rf /var/lib/apt/lists/*
 
 # --- Step 2: Configure Locale ---
@@ -41,20 +40,7 @@ RUN mkdir -p ${FLAIR_ROOT} && \
     git -c http.sslVerify=false clone https://gitlab.utc.fr/uav-hds/flair/flair-src.git ${FLAIR_ROOT}/flair-src && \
     cd ${FLAIR_ROOT}/flair-src && \
     git remote remove origin
-
-    # --- Step 5.1: Patch Gui_impl.cpp to limit FPS ---
-RUN sed -i \
-    -e "/while (device->run()) {/a \
-    const u32 frameTimeMs = 1000 / $FLAIR_FPS; \
-    u32 frameStartTime = device->getTimer()->getTime();" \
-    -e "/driver->endScene();/a \
-    const u32 frameRenderTime = device->getTimer()->getTime() - frameStartTime; \
-    if (frameRenderTime < frameTimeMs) { \
-        device->sleep(frameTimeMs - frameRenderTime); \
-    } \
-    frameStartTime = device->getTimer()->getTime();" \
-    $FLAIR_ROOT/flair-src/lib/FlairSimulator/src/Gui_impl.cpp
-
+    
 # --- Step 6: Install Flair toolchains (Parallel) ---
 RUN cd /tmp && \
     TOOLCHAINS="x86_64-meta-toolchain-flair-x86_64 \
@@ -109,14 +95,14 @@ RUN git clone https://github.com/ateveraz/customCtrl.git ${FLAIR_ROOT}/flair-src
     git remote remove origin
 
 # --- Step 11: Add Global CMake Config Script and add it to clone_demo.sh ---
-COPY ../configure-flair-cmake.sh /usr/local/bin/configure-flair-cmake.sh
+COPY configure-flair-cmake.sh /usr/local/bin/configure-flair-cmake.sh
 RUN chmod +x /usr/local/bin/configure-flair-cmake.sh 
 RUN sed -i '$a /usr/local/bin/configure-flair-cmake.sh' ${FLAIR_ROOT}/flair-src/scripts/clone_demo.sh
 
 # --- Step 12: Compile all Flair non-interactively ---
-COPY ../flair_compile_all_non_interactive.sh /usr/local/bin/
+COPY flair_compile_all_non_interactive.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/flair_compile_all_non_interactive.sh 
-
+RUN bash -i -c "source ~/.bashrc && flair_compile_all_non_interactive.sh"
 
 # --- Default command ---
 CMD ["/bin/bash"]
