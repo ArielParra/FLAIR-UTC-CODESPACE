@@ -10,15 +10,13 @@ docker build -t flair-dev -f Dockerfile.hacks .
 
 ## 2 Run the Container
 
+> [!NOTE] Windows users
+> If you are on Windows, run this Docker command in a **WSL2 distribution** with **WSLg enabled** (on by default in WSL settings) and integrated with [Docker Desktop](https://docs.docker.com/desktop/features/wsl/#enabling-docker-support-in-wsl-2-distributions)
+
 After building, start the container:
 
 ```bash
-docker run -it -d \
-  --name flair-dev \
-  --privileged \
-  --env DISPLAY=$DISPLAY \
-  --volume /tmp/.X11-unix:/tmp/.X11-unix:rw \
-  flair-dev
+docker run -it -d --name flair-dev --privileged --env DISPLAY=$DISPLAY --volume /tmp/.X11-unix:/tmp/.X11-unix:rw flair-dev
 ```
 
 ## 3 Access the Container

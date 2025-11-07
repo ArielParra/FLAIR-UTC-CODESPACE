@@ -40,7 +40,16 @@ RUN mkdir -p ${FLAIR_ROOT} && \
     git -c http.sslVerify=false clone https://gitlab.utc.fr/uav-hds/flair/flair-src.git ${FLAIR_ROOT}/flair-src && \
     cd ${FLAIR_ROOT}/flair-src && \
     git remote remove origin
-    
+
+# --- Step 5.1: Optionally add local flair-hds folder ---
+RUN if [ -d "./flair-hds" ]; then \
+        mkdir -p ${FLAIR_ROOT}/flair-hds && \
+        cp -r ./flair-hds/* ${FLAIR_ROOT}/flair-hds/ && \
+        echo "flair-hds copied to container"; \
+    else \
+        echo "No flair-hds folder found, skipping"; \
+    fi
+
 # --- Step 6: Install Flair toolchains (Parallel) ---
 RUN cd /tmp && \
     TOOLCHAINS="x86_64-meta-toolchain-flair-x86_64 \
