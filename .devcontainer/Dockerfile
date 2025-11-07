@@ -55,18 +55,17 @@ RUN sed -i \
     frameStartTime = device->getTimer()->getTime();" \
     $FLAIR_ROOT/flair-src/lib/FlairSimulator/src/Gui_impl.cpp
 
-
-# --- Step 6: Copy and Install Flair toolchains (Local Copy) ---
-COPY toolchains/*.sh /tmp/
+# --- Step 6: Install Flair toolchains (Parallel) ---
 RUN cd /tmp && \
-    chmod +x *.sh && \
     TOOLCHAINS="x86_64-meta-toolchain-flair-x86_64 \
                 x86_64-meta-toolchain-flair-armv7a-neon \
                 x86_64-meta-toolchain-flair-armv5e" && \
-    echo "[*] Starting parallel toolchain installs from local files..." && \
+    echo "[*] Starting parallel toolchain installs..." && \
     for toolchain in $TOOLCHAINS; do \
         ( \
-            echo "[+] Installing $toolchain..."; \
+            echo "[+] Downloading and installing $toolchain..."; \
+            wget -q --no-check-certificate "https://devel.hds.utc.fr/flair/old/toolchain/${toolchain}.sh" -O "${toolchain}.sh" && \
+            chmod +x "${toolchain}.sh" && \
             expect -c " \
                 set timeout -1; \
                 spawn ./${toolchain}.sh; \
@@ -78,7 +77,7 @@ RUN cd /tmp && \
             echo \"Finished installing $toolchain\" \
         ) & \
     done && \
-    wait && echo "All local toolchains installed in parallel successfully."
+    wait && echo "All toolchains installed in parallel successfully."
 
 # --- Step 7: Fix toolchain make path ---
 RUN ARCHS="core2-64 armv7a-neon armv5te" && \
