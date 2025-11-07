@@ -6,6 +6,10 @@ It is designed to assist in the creation of applications for robots, especially 
 This repository helps create reproducible development environments using Docker, so all developers share the same configuration.
 It also includes hacks to make it work, since FLAIR is not under active development.
 
+More Info at: 
+- UTC GitLab FLAIR wiki: https://gitlab.utc.fr/uav-hds/flair/flair-src/-/wikis/home
+- Old (legacy) repository: https://devel.hds.utc.fr/software/flair/wiki
+
 ## 1 Build the Image
 
 In the folder where your **Dockerfile** is located, run:
@@ -67,3 +71,7 @@ Perfect! You can add a **“Demos” section at the end** of your README with Gi
 ### GitHub Codespaces + XPRA (GUI in browser)
 
 ![GitHub Codespaces XPRA Demo](img/GH_codespaces_xpra.png)
+
+### Alpine Linux + Docker (xhost gui passthroug)
+
+![Alpine Linux Demo](img/Alpine_Host_Sway.png)
