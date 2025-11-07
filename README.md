@@ -72,6 +72,6 @@ Perfect! You can add a **“Demos” section at the end** of your README with Gi
 
 ![GitHub Codespaces XPRA Demo](img/GH_codespaces_xpra.png)
 
-### Alpine Linux + Docker (xhost gui passthroug)
+### Alpine Linux + Docker (xhost GUI pass-through)
 
 ![Alpine Linux Demo](img/Alpine_Host_Sway.png)
