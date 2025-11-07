@@ -13,7 +13,7 @@
     }
   },
 
-  "postCreateCommand": "bash -c 'source ~/.bashrc' && /usr/local/bin/flair_compile_all_non_interactive.sh",
+  "postCreateCommand": "bash -c 'source ~/.bashrc' && /usr/local/bin/flair_compile_all_non_interactive.sh && cd /root/customCtrl && /usr/local/bin/configure-flair-cmake.sh ",
   "postStartCommand": "xpra start --no-daemon --bind-tcp=0.0.0.0:10000 --html=on --start=gnome-terminal",
   
   "workspaceFolder": "/root/",

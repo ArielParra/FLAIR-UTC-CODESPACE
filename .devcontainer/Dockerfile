@@ -106,10 +106,8 @@ RUN git clone https://github.com/ateveraz/customCtrl.git /root/customCtrl && \
 
 # --- Step 11: Add Global CMake Config Script ---
 COPY configure-flair-cmake.sh /usr/local/bin/configure-flair-cmake.sh
-RUN chmod +x /usr/local/bin/configure-flair-cmake.sh && \
-    cd /root/customCtrl && \
-    /usr/local/bin/configure-flair-cmake.sh
-
+RUN chmod +x /usr/local/bin/configure-flair-cmake.sh 
+    
 # --- Step 12: Compile all Flair non-interactively ---
 COPY flair_compile_all_non_interactive.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/flair_compile_all_non_interactive.sh 
