@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Generates a local CMakePresets.json file for the Flair SDK in the current project folder.
+# Generates CMakePresets.json and VSCode settings for Flair SDK with Microsoft C++ IntelliSense
 
 set -e  
 
@@ -8,9 +8,9 @@ echo "Configuring local Flair CMake presets..."
 toolchains=($OECORE_CMAKE_TOOLCHAINS)
 echo "Found toolchains: ${toolchains[*]}"
 
-
 OUTPUT_FILE="./CMakePresets.json"
 
+# --- 1. Generate CMakePresets.json ---
 echo "Generating ${OUTPUT_FILE}..."
 
 {
@@ -68,3 +68,47 @@ echo "Generating ${OUTPUT_FILE}..."
 } > "$OUTPUT_FILE"
 
 echo "Local CMake presets successfully generated at ${OUTPUT_FILE}"
+
+# --- 2. Generate VSCode settings ---
+echo "Generating '.vscode/settings.json'..."
+mkdir -p .vscode
+cat > .vscode/settings.json <<EOF
+{
+  "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools",
+  "cmake.configureOnOpen": true,
+  "files.exclude": {
+    "**/.git": true,
+    "build": true
+  }
+}
+EOF
+
+# --- 3. Generate c_cpp_properties.json for IntelliSense ---
+echo "Generating '.vscode/c_cpp_properties.json' for Microsoft C++ IntelliSense..."
+cat > .vscode/c_cpp_properties.json <<EOF
+{
+    "configurations": [
+        {
+            "name": "Flair-Cross-Compile",
+            "compilerPath": "/usr/bin/g++",
+            "cStandard": "c11",
+            "cppStandard": "c++17",
+            "intelliSenseMode": "gcc-x64",
+            "includePath": [
+                "\${workspaceFolder}/**",
+                "/opt/robomap3/2.1.3/armv7a-neon/sysroots/armv7a-neon-poky-linux-gnueabi/usr/include",
+                "/opt/robomap3/2.1.3/armv7a-neon/sysroots/armv7a-neon-poky-linux-gnueabi/usr/include/c++/4.9.3",
+                "\${FLAIR_ROOT}/flair-src/lib/**",
+                "\${FLAIR_ROOT}/flair-src/tools/**",
+                "\${FLAIR_ROOT}/flair-hds/src/lib/**",
+                "\${FLAIR_ROOT}/flair-hds/src/tools/**",
+                "\${FLAIR_ROOT}/flair-hds/dev/**"
+            ]
+        }
+    ],
+    "version": 4
+}
+EOF
+
+echo "VSCode IntelliSense configuration generated."
+echo "Setup complete. Open or Restart VSCode, and C++ IntelliSense should now find all headers."

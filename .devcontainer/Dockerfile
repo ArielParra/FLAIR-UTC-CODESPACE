@@ -7,7 +7,7 @@ FROM debian:bookworm-slim
 
 ENV DEBIAN_FRONTEND=noninteractive
 ENV FLAIR_ROOT=/root/flair
-ENV FLAIR_FPS=30
+ARG FLAIR_FPS=30
 
 # --- Step 1: System dependencies ---
 RUN apt-get update && apt-get install -y \
@@ -15,6 +15,7 @@ RUN apt-get update && apt-get install -y \
     mesa-utils libgl1-mesa-dev \
     # not stated in the wiki but needed to compile & run flair
     make wget python3 python3-pip bash sudo qemu-user doxygen \
+    qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools \
     gnome-terminal locales expect\
     # GUI dependencies
     libx11-6 libxext6 libxrender1 libxrandr2 libxi6 libxtst6 libxfixes3 \
@@ -54,17 +55,18 @@ RUN sed -i \
     frameStartTime = device->getTimer()->getTime();" \
     $FLAIR_ROOT/flair-src/lib/FlairSimulator/src/Gui_impl.cpp
 
-# --- Step 6: Install Flair toolchains (Parallel) ---
+
+# --- Step 6: Copy and Install Flair toolchains (Local Copy) ---
+COPY toolchains/*.sh /tmp/
 RUN cd /tmp && \
+    chmod +x *.sh && \
     TOOLCHAINS="x86_64-meta-toolchain-flair-x86_64 \
                 x86_64-meta-toolchain-flair-armv7a-neon \
                 x86_64-meta-toolchain-flair-armv5e" && \
-    echo "[*] Starting parallel toolchain installs..." && \
+    echo "[*] Starting parallel toolchain installs from local files..." && \
     for toolchain in $TOOLCHAINS; do \
         ( \
-            echo "[+] Downloading and installing $toolchain..."; \
-            wget -q --no-check-certificate "https://devel.hds.utc.fr/flair/old/toolchain/${toolchain}.sh" -O "${toolchain}.sh" && \
-            chmod +x "${toolchain}.sh" && \
+            echo "[+] Installing $toolchain..."; \
             expect -c " \
                 set timeout -1; \
                 spawn ./${toolchain}.sh; \
@@ -76,9 +78,9 @@ RUN cd /tmp && \
             echo \"Finished installing $toolchain\" \
         ) & \
     done && \
-    wait && echo "All toolchains installed in parallel successfully."
+    wait && echo "All local toolchains installed in parallel successfully."
 
-    # --- Step 7: Fix toolchain make path ---
+# --- Step 7: Fix toolchain make path ---
 RUN ARCHS="core2-64 armv7a-neon armv5te" && \
     for arch in $ARCHS; do \
         SYSROOT_DIR=$(echo /opt/robomap3/2.1.3/$arch/sysroots/*poky-linux*/usr/bin) && \
@@ -103,18 +105,21 @@ RUN echo '# Flair Environment Configuration' >> /root/.bashrc && \
 RUN ln -sf /usr/lib/x86_64-linux-gnu/libicui18n.so.72 /usr/lib/x86_64-linux-gnu/libicui18n.so.67
 
 # --- Step 10: Add Alejandro's Template without push notifications ---
-RUN git clone https://github.com/ateveraz/customCtrl.git /root/customCtrl && \
-    cd /root/customCtrl && \
+RUN git clone https://github.com/ateveraz/customCtrl.git ${FLAIR_ROOT}/flair-src/demos/customCtrl && \
+    cd ${FLAIR_ROOT}/flair-src/demos/customCtrl && \
     git remote remove origin
 
 # --- Step 11: Add Global CMake Config Script ---
 COPY configure-flair-cmake.sh /usr/local/bin/configure-flair-cmake.sh
 RUN chmod +x /usr/local/bin/configure-flair-cmake.sh 
-    
-# --- Step 12: Compile all Flair non-interactively ---
+
+# --- Step 11: Add configure_flair-cmake.sh into clone_demo.sh ---
+RUN sed -i '$a /usr/local/bin/configure-flair-cmake.sh' ${FLAIR_ROOT}/flair-src/scripts/clone_demo.sh
+
+# --- Step 13: Compile all Flair non-interactively ---
 COPY flair_compile_all_non_interactive.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/flair_compile_all_non_interactive.sh 
-    
+
 
 # --- Default command ---
 CMD ["/bin/bash"]
