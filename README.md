@@ -59,8 +59,9 @@ You can open and work directly inside the running container using VS Code’s **
 3. **Start coding inside the container**
    VS Code will open a new window connected to your container environment.
    You’ll have full terminal, IntelliSense, and extension support inside the container.
+## TODO
 
-Perfect! You can add a **“Demos” section at the end** of your README with GitHub Markdown images using `![]()`. Here’s how it would look:
+- [ ] USB passthrough for Windows Docker using **USBIPD**:
 
 ## Use Case Examples
 
@@ -75,3 +76,4 @@ Perfect! You can add a **“Demos” section at the end** of your README with Gi
 ### Alpine Linux + Docker (xhost GUI pass-through)
 
 ![Alpine Linux Demo](img/Alpine_Host_Sway.png)
+
