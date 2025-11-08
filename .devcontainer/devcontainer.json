@@ -1,7 +1,7 @@
 {
   "name": "Flair Codespace",
   "build": {
-    "dockerfile": "../Dockerfile.hacks.codespaces",
+    "dockerfile": ".devcontainer/Dockerfile.hacks.codespaces",
     "context": ".."
   },
   "remoteUser": "root",
