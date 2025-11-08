@@ -85,6 +85,30 @@ EOF
 
 # --- 3. Generate c_cpp_properties.json for IntelliSense ---
 echo "Generating '.vscode/c_cpp_properties.json' for Microsoft C++ IntelliSense..."
+
+mkdir -p .vscode
+
+INCLUDE_PATHS=(
+    "\${workspaceFolder}/**"
+    "/opt/robomap3/2.1.3/armv7a-neon/sysroots/armv7a-neon-poky-linux-gnueabi/usr/include"
+    "/opt/robomap3/2.1.3/armv7a-neon/sysroots/armv7a-neon-poky-linux-gnueabi/usr/include/c++/4.9.3"
+    "\${FLAIR_ROOT}/flair-src/lib/**"
+    "\${FLAIR_ROOT}/flair-src/tools/**"
+)
+
+# Add flair-hds paths if the folder exists
+if [ -d "$FLAIR_ROOT/flair-hds" ]; then
+    INCLUDE_PATHS+=(
+        "\${FLAIR_ROOT}/flair-hds/src/lib/**"
+        "\${FLAIR_ROOT}/flair-hds/src/tools/**"
+        "\${FLAIR_ROOT}/flair-hds/dev/**"
+    )
+fi
+
+# Convert Bash array to JSON array
+JSON_PATHS=$(printf '        "%s",\n' "${INCLUDE_PATHS[@]}" | sed '$s/,$//')
+
+# Write c_cpp_properties.json
 cat > .vscode/c_cpp_properties.json <<EOF
 {
     "configurations": [
@@ -95,20 +119,16 @@ cat > .vscode/c_cpp_properties.json <<EOF
             "cppStandard": "c++17",
             "intelliSenseMode": "gcc-x64",
             "includePath": [
-                "\${workspaceFolder}/**",
-                "/opt/robomap3/2.1.3/armv7a-neon/sysroots/armv7a-neon-poky-linux-gnueabi/usr/include",
-                "/opt/robomap3/2.1.3/armv7a-neon/sysroots/armv7a-neon-poky-linux-gnueabi/usr/include/c++/4.9.3",
-                "\${FLAIR_ROOT}/flair-src/lib/**",
-                "\${FLAIR_ROOT}/flair-src/tools/**",
-                "\${FLAIR_ROOT}/flair-hds/src/lib/**",
-                "\${FLAIR_ROOT}/flair-hds/src/tools/**",
-                "\${FLAIR_ROOT}/flair-hds/dev/**"
+$JSON_PATHS
             ]
         }
     ],
     "version": 4
 }
 EOF
+
+echo "VSCode IntelliSense configuration generated."
+
 
 echo "VSCode IntelliSense configuration generated."
 
