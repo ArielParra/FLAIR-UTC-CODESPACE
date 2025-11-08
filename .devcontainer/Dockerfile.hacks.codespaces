@@ -107,19 +107,13 @@ RUN ln -sf /usr/lib/x86_64-linux-gnu/libicui18n.so.72 /usr/lib/x86_64-linux-gnu/
 RUN git clone https://github.com/ateveraz/customCtrl.git ${FLAIR_ROOT}/flair-src/demos/customCtrl && \
     cd ${FLAIR_ROOT}/flair-src/demos/customCtrl && \
     git remote remove origin
-# --- Step 11: Add Global CMake Config Script from GitHub and register it in clone_demo.sh ---
-RUN git clone --depth=1 https://github.com/ArielParra/FLAIR-UTC-CODESPACE /tmp/
-
-# Move the scripts from the cloned repo into /usr/local/bin
-RUN cp /tmp/configure-flair-project.sh /usr/local/bin/configure-flair-project.sh && \
-    chmod +x /usr/local/bin/configure-flair-project.sh && \
-    sed -i '$a /usr/local/bin/configure-flair-project.sh' ${FLAIR_ROOT}/flair-src/scripts/clone_demo.sh
-
-# --- Step 12: Compile all Flair non-interactively (also from the cloned repo) ---
-RUN cp /tmp/flair_compile_all_non_interactive.sh /usr/local/bin/flair_compile_all_non_interactive.sh && \
-    chmod +x /usr/local/bin/flair_compile_all_non_interactive.sh
-RUN rm -rf /tmp/
-
+    
+# --- Step 11: copy hack scripts ---
+RUN git clone --depth=1 https://github.com/ArielParra/FLAIR-UTC-CODESPACE /tmp/FLAIR-UTC-CODESPACE && \
+    install -m 755 /tmp/FLAIR-UTC-CODESPACE/configure-flair-project.sh /usr/local/bin/configure-flair-project.sh && \
+    install -m 755 /tmp/FLAIR-UTC-CODESPACE/flair_compile_all_non_interactive.sh /usr/local/bin/flair_compile_all_non_interactive.sh && \
+    sed -i '$a /usr/local/bin/configure-flair-project.sh' ${FLAIR_ROOT}/flair-src/scripts/clone_demo.sh && \
+    rm -rf /tmp/FLAIR-UTC-CODESPACE
 
 # --- Default command ---
 CMD ["/bin/bash"]
