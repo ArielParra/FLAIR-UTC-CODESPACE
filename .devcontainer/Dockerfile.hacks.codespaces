@@ -110,14 +110,9 @@ RUN git clone https://github.com/ateveraz/customCtrl.git ${FLAIR_ROOT}/flair-src
     
 # --- Step 11: copy hack scripts ---
 RUN git clone --depth=1 https://github.com/ArielParra/FLAIR-UTC-CODESPACE /tmp/FLAIR-UTC-CODESPACE && \
-    # Install scripts
-    install -m 755 /tmp/FLAIR-UTC-CODESPACE/configure-flair-project.sh /usr/local/bin/configure-flair-project.sh && \
+    install -m 755 /tmp/FLAIR-UTC-CODESPACE/configure_flair_project.sh /usr/local/bin/configure_flair_project.sh && \
     install -m 755 /tmp/FLAIR-UTC-CODESPACE/flair_compile_all_non_interactive.sh /usr/local/bin/flair_compile_all_non_interactive.sh && \
-    # Only append to clone_demo.sh if it exists
-    if [ -f "${FLAIR_ROOT}/flair-src/scripts/clone_demo.sh" ]; then \
-        sed -i '$a /usr/local/bin/configure-flair-project.sh' ${FLAIR_ROOT}/flair-src/scripts/clone_demo.sh; \
-    fi && \
-    # Clean up
+    sed -i '$a /usr/local/bin/configure_flair_project.sh' ${FLAIR_ROOT}/flair-src/scripts/clone_demo.sh; \
     rm -rf /tmp/FLAIR-UTC-CODESPACE
 
 # --- Default command ---
