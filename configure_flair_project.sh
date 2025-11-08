@@ -146,10 +146,4 @@ else
     echo ".gitignore already contains 'build*/'"
 fi
 
-# --- 5. Notify VS Code / Codespaces to reload workspace ---
-if [ -n "$CODESPACES" ] && command -v code >/dev/null 2>&1; then
-    echo "Reloading VSCode window to apply new IntelliSense settings..."
-    code --force --reload-window || true
-else
-    echo "Setup complete. Open or Restart VSCode, and C++ IntelliSense should now find all headers."
-fi
+echo "Setup complete. Open or Restart VSCode, and C++ IntelliSense should now find all headers."
