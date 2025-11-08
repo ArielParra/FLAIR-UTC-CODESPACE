@@ -15,7 +15,7 @@ More Info at:
 In the folder where your **Dockerfile** is located, run:
 
 ```bash
-docker build -t flair-dev -f Dockerfile.hacks .
+docker build -t flair-dev -f Dockerfile.hacks.local .
 ```
 
 ## 2 Run the Container

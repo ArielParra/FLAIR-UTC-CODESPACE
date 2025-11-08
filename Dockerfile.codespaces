@@ -1,7 +1,7 @@
-# =====================================================================================
+# ============================================================================================
 # FLAIR Build Environment
-# Debian 12 (Bookworm) Slim + Flair Toolchains + GUI dependencies + HDS students hacks
-# =====================================================================================
+# Debian 12 (Bookworm) Slim + Flair Toolchains + GUI dependencies & xpra + HDS students hacks
+# ============================================================================================
 
 FROM debian:bookworm-slim
 
@@ -109,14 +109,13 @@ RUN git clone https://github.com/ateveraz/customCtrl.git ${FLAIR_ROOT}/flair-src
     git remote remove origin
 
 # --- Step 11: Add Global CMake Config Script and add it to clone_demo.sh ---
-COPY ../configure-flair-cmake.sh /usr/local/bin/configure-flair-cmake.sh
-RUN chmod +x /usr/local/bin/configure-flair-cmake.sh 
-RUN sed -i '$a /usr/local/bin/configure-flair-cmake.sh' ${FLAIR_ROOT}/flair-src/scripts/clone_demo.sh
+COPY configure-flair-project.sh /usr/local/bin/configure-flair-project.sh
+RUN chmod +x /usr/local/bin/configure-flair-project.sh 
+RUN sed -i '$a /usr/local/bin/configure-flair-project.sh' ${FLAIR_ROOT}/flair-src/scripts/clone_demo.sh
 
 # --- Step 12: Compile all Flair non-interactively ---
-COPY ../flair_compile_all_non_interactive.sh /usr/local/bin/
+COPY flair_compile_all_non_interactive.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/flair_compile_all_non_interactive.sh 
-
 
 # --- Default command ---
 CMD ["/bin/bash"]

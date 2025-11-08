@@ -111,4 +111,25 @@ cat > .vscode/c_cpp_properties.json <<EOF
 EOF
 
 echo "VSCode IntelliSense configuration generated."
-echo "Setup complete. Open or Restart VSCode, and C++ IntelliSense should now find all headers."
+
+# --- 4. Ensure build*/ folders are ignored in .gitignore ---
+echo "Ensuring 'build*/' folders are ignored in .gitignore..."
+
+if [ ! -f .gitignore ]; then
+    echo "# Git ignore file" > .gitignore
+fi
+
+if ! grep -q '^build.*/' .gitignore; then
+    echo -e "\n# Ignore build directories\nbuild*/" >> .gitignore
+    echo ".gitignore updated with 'build*/'"
+else
+    echo ".gitignore already contains 'build*/'"
+fi
+
+# --- 5. Notify VS Code / Codespaces to reload workspace ---
+if [ -n "$CODESPACES" ] && command -v code >/dev/null 2>&1; then
+    echo "Reloading VSCode window to apply new IntelliSense settings..."
+    code --force --reload-window || true
+else
+    echo "Setup complete. Open or Restart VSCode, and C++ IntelliSense should now find all headers."
+fi

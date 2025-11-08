@@ -104,9 +104,9 @@ RUN git clone https://github.com/ateveraz/customCtrl.git ${FLAIR_ROOT}/flair-src
     git remote remove origin
 
 # --- Step 11: Add Global CMake Config Script and add it to clone_demo.sh ---
-COPY configure-flair-cmake.sh /usr/local/bin/configure-flair-cmake.sh
-RUN chmod +x /usr/local/bin/configure-flair-cmake.sh 
-RUN sed -i '$a /usr/local/bin/configure-flair-cmake.sh' ${FLAIR_ROOT}/flair-src/scripts/clone_demo.sh
+COPY configure_flair_project.sh /usr/local/bin/configure_flair_project.sh
+RUN chmod +x /usr/local/bin/configure_flair_project.sh 
+RUN sed -i '$a /usr/local/bin/configure_flair_project.sh' ${FLAIR_ROOT}/flair-src/scripts/clone_demo.sh
 
 # --- Step 12: Compile all Flair non-interactively ---
 COPY flair_compile_all_non_interactive.sh /usr/local/bin/
