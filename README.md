@@ -6,6 +6,8 @@ It is designed to assist in the creation of applications for robots, especially 
 This repository helps create reproducible development environments using Docker, so all developers share the same configuration.
 It also includes hacks to make it work, since FLAIR is not under active development.
 
+The Debian image used for this environment is approximately 4GB in size and around 2GB when compressed, making it a low-storage solution compared to a full virtual machine.
+
 More Info at: 
 - UTC GitLab FLAIR wiki: https://gitlab.utc.fr/uav-hds/flair/flair-src/-/wikis/home
 - Old (legacy) repository: https://devel.hds.utc.fr/software/flair/wiki

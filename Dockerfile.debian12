@@ -17,7 +17,7 @@ RUN apt-get update && apt-get install -y \
     gnome-terminal locales expect\
     # GUI dependencies
     libx11-6 libxext6 libxrender1 libxrandr2 libxi6 libxtst6 libxfixes3 \
-    libgtk-3-0 libglib2.0-0 \
+    libgtk-3-0 libglib2.0-0 libxml2-dev \
     #FLairGCS dependencies
     libicu-dev libicu72 \
     dbus-x11 \
