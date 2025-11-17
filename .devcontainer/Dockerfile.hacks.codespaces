@@ -31,11 +31,9 @@ RUN apt-get update && apt-get install -y \
     libqwt-qt5-6 libqwt-qt5-dev libqwt-headers \
     qtpositioning5-dev libqt5positioning5 \
     qttools5-dev qttools5-dev-tools \
-    libqt5gui5-gles \
-    qt5-qmake-bin \
-    libgles2-mesa \
-    libgles2-mesa-dev \
-    mesa-common-dev
+    libqt5gui5-gles qt5-qmake-bin libgles2-mesa \
+    libgles2-mesa-dev mesa-common-dev \
+    libxslt1-dev libirrlicht-dev libboost-dev \
     # GUI dependencies
     libx11-6 libxext6 libxrender1 libxrandr2 libxi6 libxtst6 libxfixes3 \
     libgtk-3-0 libglib2.0-0 libxml2-dev\
