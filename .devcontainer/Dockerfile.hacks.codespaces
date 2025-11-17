@@ -26,20 +26,20 @@ RUN apt-get update && apt-get install -y \
     # not stated in the wiki but needed to compile & run flair
     make wget python3 python3-pip bash sudo qemu-user doxygen \
     gnome-terminal locales expect\
-    # QT compatibility
-    qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools  \
-    libqwt-qt5-6 libqwt-qt5-dev libqwt-headers \
-    qtpositioning5-dev libqt5positioning5 \
-    qttools5-dev qttools5-dev-tools \
-    libqt5gui5-gles qt5-qmake-bin libgles2-mesa \
-    libgles2-mesa-dev mesa-common-dev \
-    libxslt1-dev libirrlicht-dev libboost-dev \
     # GUI dependencies
     libx11-6 libxext6 libxrender1 libxrandr2 libxi6 libxtst6 libxfixes3 \
     libgtk-3-0 libglib2.0-0 libxml2-dev\
     #FLairGCS dependencies
     libicu-dev libicu72 \
     dbus-x11 xpra python3-uinput \
+    # QT compatibility
+    qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools  \
+    libqwt-qt5-6 libqwt-qt5-dev libqwt-headers \
+    qtpositioning5-dev libqt5positioning5 \
+    qttools5-dev qttools5-dev-tools \
+    qt5-qmake-bin libgles2-mesa \
+    libgles2-mesa-dev mesa-common-dev \
+    libxslt1-dev libirrlicht-dev libboost-dev \
     && rm -rf /var/lib/apt/lists/*
 
 
