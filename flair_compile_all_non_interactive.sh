@@ -15,13 +15,13 @@ cd "$FLAIR_BUILD_DIR"
 
 toolchains=($OECORE_CMAKE_TOOLCHAINS)
 
-# Compile all architectures in parallel
+# Compile each architecture sequentially
 for arch in "${toolchains[@]}"; do
-    (
-        cd "$FLAIR_BUILD_DIR/build_$arch"
-        make -j"$NB_THREADS"
-        make install
-    ) &
+    BUILD_DIR="$FLAIR_BUILD_DIR/build_$arch"
+    cd "$BUILD_DIR"
+    echo "[*] Building $arch..."
+    make -j"$NB_THREADS"
+    make install
 done
 
 # Wait for all parallel builds to finish

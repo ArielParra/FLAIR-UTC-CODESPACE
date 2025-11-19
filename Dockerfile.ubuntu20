@@ -20,7 +20,7 @@ RUN apt-get update && apt-get install -y \
     libx11-6 libxext6 libxrender1 libxrandr2 libxi6 libxtst6 libxfixes3 \
     libgtk-3-0 libglib2.0-0 libxml2-dev\
     # FlairGCS dependencies
-    libicu-dev libicu70 \
+    libicu-dev libicu66 \
     dbus-x11 \
     && rm -rf /var/lib/apt/lists/*
 
@@ -86,8 +86,8 @@ RUN echo '# Flair Environment Configuration' >> /root/.bashrc && \
     echo 'export QT_X11_NO_MITSHM=1' >> /root/.bashrc && \
     echo 'source $FLAIR_ROOT/flair-src/scripts/flair_completion.sh' >> /root/.bashrc
 
-# --- Step 9: Workaround for FlairGCS ICU version (Ubuntu 22.04 uses ICU 70) ---
-RUN ln -sf /usr/lib/x86_64-linux-gnu/libicui18n.so.70 /usr/lib/x86_64-linux-gnu/libicui18n.so.67
+# --- Step 9: Workaround for FlairGCS ICU version ---
+RUN ln -sf /usr/lib/x86_64-linux-gnu/libicui18n.so.66 /usr/lib/x86_64-linux-gnu/libicui18n.so.67
 
 # --- Default command ---
 CMD ["/bin/bash"]
