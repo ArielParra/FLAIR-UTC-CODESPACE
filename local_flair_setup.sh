@@ -7,16 +7,11 @@
 
 set -e
 
-if [ "$EUID" -ne 0 ]; then
-    echo "[*] Script is not running as root. Re-running with sudo..."
-    exec sudo "$0" "$@"
-fi
-
 export DEBIAN_FRONTEND=noninteractive
-export FLAIR_ROOT=/root/flair
+export FLAIR_ROOT=$HOME/flair
 
 # --- Step 1: System dependencies ---
-apt-get update
+sudo apt-get update
 
 LIBICU_PACKAGE=$(apt-cache search '^libicu[0-9]+$' | awk '{print $1}' | sort -r | head -n1)
 if [ -z "$LIBICU_PACKAGE" ]; then
@@ -24,10 +19,10 @@ if [ -z "$LIBICU_PACKAGE" ]; then
     exit 1
 fi
 
-apt-get install -y \
+sudo apt-get install -y \
     python-is-python3 git build-essential cmake file \
     mesa-utils libgl1-mesa-dev gnome-terminal \
-    make wget python3 python3-pip bash sudo qemu-user doxygen \
+    make wget python3 python3-pip bash qemu-user doxygen \
     qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools libxml2-dev \
     libx11-6 libxext6 libxrender1 libxrandr2 libxi6 libxtst6 libxfixes3 \
     libgtk-3-0 libglib2.0-0 \
@@ -39,8 +34,8 @@ sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen
 locale-gen
 
 # --- Step 4: Real-time limits ---
-echo 'root soft rtprio 99' >> /etc/security/limits.conf
-echo 'root hard rtprio 99' >> /etc/security/limits.conf
+echo "$USER soft rtprio 99" >> /etc/security/limits.conf
+echo "$USER hard rtprio 99" >> /etc/security/limits.conf
 
 # --- Step 5: Clone Flair source ---
 mkdir -p "${FLAIR_ROOT}"
@@ -97,13 +92,20 @@ done
     echo 'export LANGUAGE=en_US:en'
     echo 'export LC_ALL=en_US.UTF-8'
     echo 'source $FLAIR_ROOT/flair-src/scripts/flair_completion.sh'
-} >> /root/.bashrc
+} >> $HOME/.bashrc
 
 # --- Step 9: ICU workaround ---
-ICU_SO=$(ls /usr/lib/x86_64-linux-gnu/libicui18n.so.* | sort -V | tail -n1)
-if [ -n "$ICU_SO" ]; then
-    ln -sf "$ICU_SO" /usr/lib/x86_64-linux-gnu/libicui18n.so.67
-fi
+cd /usr/lib/x86_64-linux-gnu/ || exit 1
+# Loop over all libicu shared libraries
+for f in libicu*.so.*; do
+    # Skip if the file already ends with .so.66
+    if [[ "$f" != *.so.66 ]]; then
+        # Determine the target name
+        TARGET="${f%.*}.so.66"
+        ln -sf "$f" "$TARGET"
+    fi
+done
+
 
 # --- Step 10: Add Alejandro's template ---
 git clone https://github.com/ateveraz/customCtrl.git "${FLAIR_ROOT}/flair-src/demos/customCtrl"
@@ -117,11 +119,8 @@ install -m 755 /tmp/FLAIR-UTC-CODESPACE/flair_compile_all_non_interactive.sh /us
 sed -i '$a /usr/local/bin/configure_flair_project.sh' "${FLAIR_ROOT}/flair-src/scripts/clone_demo.sh"
 rm -rf /tmp/FLAIR-UTC-CODESPACE
 
-# --- Step 12: Compile Flair non-interactively ---
 # Source the bashrc to load all environment variables
-source /root/.bashrc
+source $HOME/.bashrc
 
-# Run the non-interactive Flair compile script
-/usr/local/bin/flair_compile_all_non_interactive.sh
 
 echo "FLAIR build environment setup complete!"
