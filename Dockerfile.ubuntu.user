@@ -10,10 +10,15 @@ ENV DEBIAN_FRONTEND=noninteractive
 ARG USER=administrator
 ENV FLAIR_ROOT=/home/${USER}/flair
 
-# --- Create user for this docker ---
-RUN useradd -m -s /bin/bash ${USER} && \
+# Create device/admin groups
+RUN groupadd -f input && \
+    groupadd -f video && \
+    groupadd -f plugdev && \
+    groupadd -f dialout && \
+    groupadd -f adm && \
+    # Create user with multiple groups
+    useradd -m -s /bin/bash -G sudo,input,video,plugdev,dialout,adm ${USER} && \
     passwd -d ${USER} && \
-    usermod -aG sudo,input,video,plugdev,dialout,adm ${USER} && \
     echo "${USER} ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 
 # --- Step 1: System dependencies ---
