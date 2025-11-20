@@ -56,6 +56,8 @@ RUN echo '# Flair Environment Configuration' >> /root/.bashrc && \
     echo 'export PATH="$PATH:$FLAIR_ROOT/flair-src/bin:$FLAIR_ROOT/flair-src/scripts"' >> /root/.bashrc && \
     # fix an error with arm crosscompilation 
     echo 'export QEMU_LD_PREFIX="/opt/robomap3/2.1.3/armv7a-neon/sysroots/armv7a-neon-poky-linux-gnueabi"' >> /root/.bashrc && \
+      # QT_X11_NO_MITSHM to fix specific GUI errors in FlairGCS for Debian
+    echo 'export QT_X11_NO_MITSHM=1' >> /root/.bashrc && \
     echo 'source $FLAIR_ROOT/flair-src/scripts/flair_completion.sh' >> /root/.bashrc
 
 # --- Step 6: Install Flair toolchains (Parallel) ---

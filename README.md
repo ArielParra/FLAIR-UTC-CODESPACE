@@ -3,10 +3,12 @@
 FLAIR is an open-source C++ framework developed by the Heudiasyc laboratory from Université de technologie de Compiègne (UTC).
 It is designed to assist in the creation of applications for robots, especially UAVs.
 
-This repository helps create reproducible development environments using Docker, so all developers share the same configuration.
-It also includes hacks to make it work, since FLAIR is not under active development.
+This repository helps create **reproducible development environments using Docker**, so all developers share the same configuration.
+It also includes hacks to make it work, since FLAIR is not under active development. For users running on bare metal or virtual machines, an alternative setup script (`local_flair_setup.sh`) is also provided.
 
-The Debian image used for this environment is approximately 4GB in size and around 2GB when compressed, making it a low-storage solution compared to a full virtual machine.
+The recommended Ubuntu 20.04 image is approximately 3 GB uncompressed and compresses to less than 2 GB.
+The Debian 12 image is approximately 4 GB uncompressed and compresses to around 2 GB.
+Both images are compact compared to a full virtual machine.
 
 More Info at: 
 - UTC GitLab FLAIR wiki: https://gitlab.utc.fr/uav-hds/flair/flair-src/-/wikis/home
@@ -63,8 +65,10 @@ You can open and work directly inside the running container using VS Code’s **
    You’ll have full terminal, IntelliSense, and extension support inside the container.
 ## TODO
 
-- [ ] Safer docker passthrough without `--privileged` flag  
-- [ ] USB passthrough for Windows Docker using **USBIPD**:
+- [x] Patch FPS limit in simulation as a hack
+- [ ] Provide safer Docker GUI passthrough without using the `--privileged` flag
+- [ ] Implement XInput DualShock 4/5 Nintendo controller support
+- [ ] USB passthrough for Windows Docker using **USBIPD**
 
 ## Use Case Examples
 

@@ -3,23 +3,13 @@
 # Ubuntu 20.04 (Focal) + Flair Toolchains + GUI dependencies 
 # ===========================================================
 
+# STILL IN DEVELOPMENT
+# docker run -it -d --name flair-user --user administrator --env DISPLAY=$DISPLAY --volume /tmp/.X11-unix:/tmp/.X11-unix:rw --volume /dev/shm:/dev/shm flair-dev
+
 FROM ubuntu:20.04
 
 # Prevent interactive prompts during build
 ENV DEBIAN_FRONTEND=noninteractive
-ARG USER=administrator
-ENV FLAIR_ROOT=/home/${USER}/flair
-
-# Create device/admin groups
-RUN groupadd -f input && \
-    groupadd -f video && \
-    groupadd -f plugdev && \
-    groupadd -f dialout && \
-    groupadd -f adm && \
-    # Create user with multiple groups
-    useradd -m -s /bin/bash -G sudo,input,video,plugdev,dialout,adm ${USER} && \
-    passwd -d ${USER} && \
-    echo "${USER} ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 
 # --- Step 1: System dependencies ---
 RUN apt-get update && apt-get install -y \
@@ -36,6 +26,20 @@ RUN apt-get update && apt-get install -y \
     # Docker utils 
     dbus-x11 expect\
     && rm -rf /var/lib/apt/lists/*
+
+ARG USER=administrator
+ENV FLAIR_ROOT=/home/${USER}/flair
+
+# Create device/admin groups
+RUN groupadd -f input && \
+    groupadd -f video && \
+    groupadd -f plugdev && \
+    groupadd -f dialout && \
+    groupadd -f adm && \
+    # Create user with multiple groups
+    useradd -m -s /bin/bash -G sudo,input,video,plugdev,dialout,adm ${USER} && \
+    passwd -d ${USER} && \
+    echo "${USER} ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 
 # --- Step 2: Configure Locale to fix gnome-terminal errors ---
 RUN sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen && \
