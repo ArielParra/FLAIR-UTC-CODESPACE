@@ -17,7 +17,7 @@ More Info at:
 In the folder where your **Dockerfile** is located, run:
 
 ```bash
-docker build -t flair-dev -f Dockerfile.hacks.local .
+docker build -t flair-dev -f Dockerfile.ubuntu.root .
 ```
 
 ## 2 Run the Container
@@ -63,6 +63,7 @@ You can open and work directly inside the running container using VS Code’s **
    You’ll have full terminal, IntelliSense, and extension support inside the container.
 ## TODO
 
+- [ ] Safer docker passthrough without `--privileged` flag  
 - [ ] USB passthrough for Windows Docker using **USBIPD**:
 
 ## Use Case Examples
